@@ -17,6 +17,7 @@ TOKENREPLY=$(curl -s -X POST \
   "http://127.0.0.1:8085/oauth/token?grant_type=password&username=max&password=abc123")
 echo -n " > Access_Token: "
 TOKEN=$(echo $TOKENREPLY | jq -r ".access_token")
+TOKEN=$(echo $TOKEN | sed 's/+/%2B/g')
 echo $TOKEN
 echo -n " > Refresh_Token: "
 echo $TOKENREPLY | jq -r ".refresh_token"
