@@ -11,7 +11,7 @@ It differs from the original OAuth2-enabled version in so far that it consists o
  * An access protected [Time-Service](AuthTimeService). Only tells the time if a valid OAuth2 token is provided. Runs on *localhost:8084*
  * A [Bash client](client.sh) and an [HTML/JavaScript](index.html) client that demonstrate token retrieval and access to the time-service using a valid token.
 
-### Power Up
+### Power Up Backend
 
 ```bash
 cd TokenService
@@ -22,11 +22,17 @@ mvn clean package; java -jar target/Timeservice-Tokenrequired.jar &
 cd ..
 ```
 
+or
 
+```
+./servers.sh
+```
 
-### Test
+### Test Frontend
 
-Use the ```client.sh``` script to test unauthorized access and authorized access:  
+You can use the [Web-Frontend](index.html) to test CORS access.
+
+Also, you can use the ```client.sh``` script to test unauthorized access and authorized access:  
 
 ```bash
 ./client.sh
