@@ -1,54 +1,75 @@
 <html>
-  <head>
+<head>
     <script>
-      function writeToReplyZone(content) {
-        let replyZone = document.getElementById("replyzone");
-        replyZone.innerHTML = content;
-      }
-      function getRemoteResource() {
-        fetch('http://127.0.0.1:8085/resource')
-          .then(result => writeToReplyZone("It worked!"))
-          .catch(error => {
-            // error handling here
-            writeToReplyZone("Fetch failed. Either because server is not running or because CORS preflight failed. See Browser console for details.")   
-          })
-      }
-      function getToken() {
-        const password="abc123"
-        const username="max"
-    const init = {
-        body: "grant_type=password&username=" + username + "&password=" + password.replace(/\+/g, "%2B"),
-        headers: {
-            Authorization: "Basic dGltZXNlcnZpY2UtY2xpZW50OnBhc3N3b3JkLWZvci10aW1lc2VydmljZS1jbGllbnQ=", // echo -n "timeservice-client:password-for-timeservice-client"
-                                                                             // | base64
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        method: "POST"
-    };
+        function writeToReplyZone(content) {
+            let replyZone = document.getElementById("replyzone");
+            replyZone.innerHTML = content;
+        }
 
-    // Actually retrieves tokens from API. On success stores them in session cookie and redirects to main menu. On
-    // failure displays an alert an reloads the page.
-    fetch('http://127.0.0.1:8085' + '/oauth/token', init)
-        .then(result => result.json())  // returns a new promise, containing the parsed response (Even in case of bad
-        // credentials, a parse-able json is returned. no error handling needed here.)
-        .then(json => {
-            // If the LS rejected the credentials:
-            if (json.error) {
-writeToReplyZone("Fetch failed. Either because server is not running or because CORS preflight failed. See Browser console for details.")
-            }
-	    else {
-writeToReplyZone(json);
-            }
-        })
-      }
+        function getRemoteResource() {
+            fetch('http://127.0.0.1:8085/resource')
+                .then(result => writeToReplyZone("It worked!"))
+                .catch(error => {
+                    // error handling here
+                    writeToReplyZone("Fetch failed. Either because server is not running or because CORS preflight failed. See Browser console for details.")
+                })
+        }
+
+        function getToken() {
+            const password = "abc123"
+            const username = "max"
+            const init = {
+                body: "grant_type=password&username=" + username + "&password=" + password.replace(/\+/g, "%2B"),
+                headers: {
+                    Authorization: "Basic dGltZXNlcnZpY2UtY2xpZW50OnBhc3N3b3JkLWZvci10aW1lc2VydmljZS1jbGllbnQ=", // echo -n "timeservice-client:password-for-timeservice-client"
+                    // | base64
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                method: "POST"
+            };
+
+            // Actually retrieves tokens from API. On success stores them in session cookie and redirects to main menu. On
+            // failure displays an alert an reloads the page.
+            fetch('http://127.0.0.1:8085' + '/oauth/token', init)
+                .then(result => result.json())  // returns a new promise, containing the parsed response (Even in case of bad
+                // credentials, a parse-able json is returned. no error handling needed here.)
+                .then(json => {
+                    // If the LS rejected the credentials:
+                    if (json.error) {
+                        writeToReplyZone("Fetch failed. Either because server is not running or because CORS preflight failed. See Browser console for details.")
+                    } else {
+                        let access_token = extractAccessToken(json);
+                        console.log("Retrieved access token from SSO: \"" + access_token + "\"");
+                        getAndDisplayTime(access_token);
+                    }
+                })
+                .catch(error => writeToReplyZone("Token retrieval failed!"))
+        }
+
+        // Extracts the access token of a oauth json reply, escapes all plus signs by '+2B' and returns the string value
+        function extractAccessToken(tokenBundle) {
+            return tokenBundle.access_token.replaceAll("+", "%2B");
+        }
+
+        // Retrieves time from access protected (oauth2 token required) time-service endpoint and writes reply into target field
+        function getAndDisplayTime(access_token) {
+
+            fetch('http://127.0.0.1:8084' + '/api/time?token='+access_token)
+                .then(result => result.text())  // returns a new promise, containing the parsed response (Even in case of bad
+                // credentials, a parse-able json is returned. no error handling needed here.)
+                .then(reply => {
+                    writeToReplyZone(reply);
+                });
+        }
     </script>
-  </head>
-  <body>
-    <h1> CORS Demo </h1> 
-    <p>Click the button to test access to a cross origin resource!<p>
+</head>
+<body>
+<h1> CORS Demo </h1>
+<p>Click the button to test access to a cross origin resource!
+<p>
     <button onclick="getToken();" type="button">Test!</button>
     <div>
-       <p id="replyzone"></p>
-    </div>
-  </body>
+<p id="replyzone"></p>
+</div>
+</body>
 </html>
