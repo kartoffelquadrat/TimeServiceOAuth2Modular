@@ -9,7 +9,7 @@ It differs from the original OAuth2-enabled version in so far that it consists o
 
  * A standard [OAuth2 token provider / validator](TokenService). Runs on *localhost:8085*
  * An access protected [Time-Service](AuthTimeService). Only tells the time if a valid OAuth2 token is provided. Runs on *localhost:8084*
- * A [Bash client](client.sh) that demonstrates token retrieval and access to the time-service using a valid token.
+ * A [Bash client](client.sh) and an [HTML/JavaScript](index.html) client that demonstrate token retrieval and access to the time-service using a valid token.
 
 ### Power Up
 
